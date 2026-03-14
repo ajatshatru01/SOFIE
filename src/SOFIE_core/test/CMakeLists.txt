@@ -189,3 +189,22 @@ if (ENABLE_ALPAKA_TESTS)
 
   endif() # cuda backend
 endif()   # ENABLE_ALPAKA_TESTS
+ROOTTEST_GENERATE_EXECUTABLE(
+  TestBatchNormalizationOperator
+  TestBatchNormalizationOperator.cxx
+  LIBRARIES MathCore SOFIE_core
+)
+ROOTTEST_ADD_TEST(
+  TestBatchNormalizationOperator
+  EXEC ./TestBatchNormalizationOperator
+)
+ROOTTEST_GENERATE_EXECUTABLE(
+  TestEluOperatorSimple
+  TestEluOperatorSimple.cxx
+  LIBRARIES MathCore SOFIE_core
+)
+
+ROOTTEST_ADD_TEST(
+  TestEluOperatorSimple
+  EXEC ./TestEluOperatorSimple
+)

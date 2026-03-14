@@ -10,7 +10,7 @@
 
 #include "SOFIE/RModel.hxx"
 #include "SOFIE/SOFIE_common.hxx"
-
+#include "SOFIE/ROperator_Elu.hxx"
 namespace SOFIE {
 
 namespace {
@@ -1408,5 +1408,5 @@ void RModel::Streamer(TBuffer &R__b) {
         RModel::Class()->WriteBuffer(R__b, this);
     }
 }
-
+template class SOFIE::ROperator_Elu<float>;
 }//SOFIE

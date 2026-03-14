@@ -3,6 +3,7 @@ project(Sofie
     VERSION 1.0.1
     DESCRIPTION "SOFIE"
     LANGUAGES CXX)
+enable_testing()
 
 find_package(BLAS)
 if(NOT BLAS_FOUND)
@@ -63,3 +64,4 @@ endif()
 include(cmake/modules/RoottestMacros.cmake)
 
 add_subdirectory(src)
+add_subdirectory(src/SOFIE_core/test)

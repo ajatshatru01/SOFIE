@@ -228,6 +228,69 @@ public:
    }
 
    std::vector<std::string> GetBlasRoutines() override { return { std::string("Copy"), std::string("Axpy") }; }
+std::string Generate_GPU_Kernel_ALPAKA(std::string OpName) override {
+
+      std::stringstream out;
+
+      out << "struct BatchNormKernel_" << OpName << "{\n";
+
+      out << "template<typename Acc>\n";
+      out << "ALPAKA_FN_ACC void operator()(Acc const &acc,\n";
+      out << "float *x,\n";
+      out << "float *y,\n";
+      out << "float *scale,\n";
+      out << "float *bias,\n";
+      out << "float *mean,\n";
+      out << "size_t N) const{\n";
+
+      out << "size_t i = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];\n";
+
+      out << "if(i>=N) return;\n";
+
+      out << "y[i] = (x[i] - mean[i]) * scale[i] + bias[i];\n";
+
+      out << "}\n};\n";
+
+      return out.str();
+   }
+
+   std::string Generate_GPU_ALPAKA(std::string OpName) override {
+
+      std::stringstream out;
+
+      size_t n = ConvertShapeToLength(fShapeX);
+
+      out << "\n// BatchNormalization GPU\n";
+
+      out << "size_t " << OpName << "_size = " << n << ";\n";
+
+      out << "auto blocks_" << OpName << " = ("
+          << OpName << "_size + threadsPerBlock - 1)/threadsPerBlock;\n";
+
+      out << "auto workDiv_" << OpName
+          << " = alpaka::WorkDivMembers<1>(blocks_" << OpName
+          << ", threadsPerBlock, 1);\n";
+
+      out << "alpaka::exec<Acc>(queue,\n";
+      out << "workDiv_" << OpName << ",\n";
+      out << "BatchNormKernel_" << OpName << "{},\n";
+      out << "alpaka::getPtrNative(deviceBuf_" << fNX << "),\n";
+      out << "alpaka::getPtrNative(deviceBuf_" << fNY << "),\n";
+      out << "alpaka::getPtrNative(deviceBuf_" << fNScale << "),\n";
+      out << "alpaka::getPtrNative(deviceBuf_" << fNB << "),\n";
+      out << "alpaka::getPtrNative(deviceBuf_" << fNMean << "),\n";
+      out << OpName << "_size);\n";
+
+      return out.str();
+   }
+
+   std::string Generate_GPU_Kernel_Definitions_ALPAKA(std::string) override {
+      return "";
+   }
+
+   std::string GenerateInitCode_GPU_ALPAKA() override {
+      return "";
+   }
 };
 
 }//SOFIE
